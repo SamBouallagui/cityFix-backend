@@ -7,6 +7,10 @@ const Report = sequelize.define('Report', {
     primaryKey: true,
     autoIncrement: true,
   },
+  userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+  },
   title: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -20,7 +24,7 @@ const Report = sequelize.define('Report', {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('pending', 'inprogress', 'resolved'),
+    type: DataTypes.ENUM('pending', 'in_progress', 'resolved'),
     allowNull: false,
     defaultValue: 'pending',
   },
@@ -32,7 +36,6 @@ const Report = sequelize.define('Report', {
     type: DataTypes.GEOGRAPHY('POINT',4326), // points using the WGS 84 coordinate reference system to map the location
     allowNull: false,
   },
-
 }, {
   tableName: 'reports',
   timestamps: true,

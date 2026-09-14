@@ -3,11 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./src/models');
 const authRoutes = require('./src/routes/auth.routes');
+const reportRoutes = require('./src/routes/report.routes');
 const app = express();
 
 app.use(cors()); //Allows cross-origin requests
 app.use(express.json()); //Parses JSON request bodies
 app.use('/api/auth', authRoutes);
+app.use('/api/reports', reportRoutes);
 const PORT = process.env.PORT || 3000;
 
 //listens for requests when the connection has been established
