@@ -29,7 +29,7 @@ const Report = sequelize.define('Report', {
     defaultValue: 'pending',
   },
   photoUrl: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT, // for base64 TEXT has no length limit
     allowNull: true, //incase the upload fails
   },
   location: {

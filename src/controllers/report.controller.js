@@ -3,7 +3,7 @@ const sequelize = require('../config/database');
 
 async function createReport(req, res) {
   try {
-    const { title, description, category, latitude, longitude } = req.body;
+    const { title, description, category, latitude, longitude, photoUrl } = req.body;
     if (!title || !category || latitude == undefined || longitude == undefined) {
       return res.status(400).json({ error: 'title,category,latitude and longitude required' });
     }
@@ -11,6 +11,7 @@ async function createReport(req, res) {
       title,
       description,
       category,
+      photoUrl: photoUrl || null, // stores the base64 data URL string directly, or null if no photo was taken
       location: {
         type: 'Point',
         coordinates: [longitude, latitude], //order used by PostGIS
