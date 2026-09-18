@@ -29,7 +29,7 @@ async function register(req, res) {
             role: newUser.role,
       });
   } catch (err) {
-    console.log('Register error:', err);
+    console.error('Register error:', err);
     return res.status(500).json({ message: 'error' });
   }
 }

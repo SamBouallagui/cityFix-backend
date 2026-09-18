@@ -25,14 +25,32 @@ async function createReport(req, res) {
   }
 }
 //list all reports
+// FIX: Report.findAll() returns the PostGIS `location` column as a raw hex/EWKB
+// string (e.g. "0101000020E6100000..."), but the frontend expects
+// { type:'Point', coordinates:[lng,lat] }. Raw SQL builds the location and
+// reporter objects ourselves -- the same trick the zones query already uses.
+// (This also unblocks the agent dashboard counts, which crashed on the raw
+// location and never updated.)
 async function getReports(req, res) {
   try {
-    const where = req.user.role === 'agent' ? {} : { userId: req.user.id };
-    const reports = await Report.findAll({
-      where,
-      include: [{ model: User, as: 'reporter', attributes: ['id', 'name', 'email'] }],
-      order: [['createdAt', 'DESC']],
-    });
+    const isAgent = req.user.role === 'agent';
+    const whereClause = isAgent ? '' : ' WHERE r."userId" = $userId';
+    const reports = await sequelize.query(
+      `
+      SELECT r."id", r.title, r.description, r.category, r.status, r."photoUrl", r."createdAt",
+             ST_Y(r.location::geometry) AS latitude,
+             ST_X(r.location::geometry) AS longitude,
+             json_build_object('type','Point','coordinates',
+                json_build_array(ST_X(r.location::geometry), ST_Y(r.location::geometry))
+             ) AS location,
+             json_build_object('id', u."id", 'name', u.name, 'email', u.email) AS reporter
+      FROM reports r
+      JOIN users u ON u."id" = r."userId"
+      ${whereClause}
+      ORDER BY r."createdAt" DESC
+      `,
+      { bind: { userId: req.user.id }, type: sequelize.QueryTypes.SELECT }
+    );
     return res.status(200).json(reports);
   } catch (err) {
     console.error('Get reports error:', err);
